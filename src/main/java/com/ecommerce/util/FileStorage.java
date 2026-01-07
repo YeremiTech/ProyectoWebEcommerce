@@ -27,8 +27,11 @@ public class FileStorage {
 
     private String save(MultipartFile file, String subfolder) throws IOException {
         if (file == null || file.isEmpty()) return null;
-        if (!ALLOWED.contains(file.getContentType()))
-            throw new IOException("Tipo no permitido: " + file.getContentType());
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED.contains(contentType)) {
+            throw new IOException("Tipo no permitido: " + contentType);
+        }
 
         Path base = Paths.get(uploadDir, subfolder);
         Files.createDirectories(base);
@@ -38,10 +41,11 @@ public class FileStorage {
         String filename = Instant.now().toEpochMilli() + "_" + clean;
 
         Path target = base.resolve(filename);
+
         try (InputStream in = file.getInputStream()) {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        return "uploads/" + subfolder + "/" + filename;
+        return "/uploads/" + subfolder + "/" + filename;
     }
 }
